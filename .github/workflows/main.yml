@@ -1,0 +1,15 @@
+ name: my workflow
+ on: 
+   push:
+     branches:
+        - main 
+  jobs:
+    examples:
+      runs-on:ubuntu-latest
+
+      steps:
+        -name:
+        run:echo"welcome"
+    
+      
+         
