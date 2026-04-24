@@ -1,0 +1,79 @@
+name: Terraform GCP CI/CD
+
+on:
+  pull_request:
+  push:
+    branches: ["main"]
+
+jobs:
+  terraform:
+    name: Terraform Pipeline (GCP)
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        project: [cleanora-gcp2, cleanora-gcp1]
+
+    defaults:
+      run:
+        working-directory: ${{ matrix.project }}
+
+
+    steps:
+      # =========================
+      # Checkout
+      # =========================
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # =========================
+      # Auth to GCP
+      # =========================
+      - name: Authenticate to GCP
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      # =========================
+      # Setup gcloud
+      # =========================
+      - name: Setup Google Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      # =========================
+      # Terraform Setup
+      # =========================
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      # =========================
+      # Init
+      # =========================
+      - name: Terraform Init
+        run: terraform init
+
+      # =========================
+      # Format Check
+      # =========================
+      - name: Terraform Format Check
+        run: terraform fmt -check
+
+      # =========================
+      # Validate
+      # =========================
+      - name: Terraform Validate
+        run: terraform validate
+
+      # =========================
+      # PLAN (PR only)
+      # =========================
+      - name: Terraform Plan
+        if: github.event_name == 'pull_request'
+        run: terraform plan
+
+      # =========================
+      # APPLY (main only)
+      # =========================
+      - name: Terraform Apply
+        if: github.ref == 'refs/heads/main'
+        run: terraform apply -auto-approve
