@@ -12,7 +12,7 @@ jobs:
 
     strategy:
       matrix:
-        project: [cleanora-gcp2, cleanora-gcp1]
+        project: [cleanora-gcp2, cleanora-gcp]
 
     defaults:
       run:
